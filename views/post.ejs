@@ -1,0 +1,41 @@
+<h1><%= data.title %></h1>
+<article class="article">
+    <%- data.body %>
+    <!-- Modal -->
+<div id="myModal" class="modal">
+  <span class="close">&times;</span>
+  <img class="modal-content" id="img01">
+  <div id="caption"></div>
+</div>
+</article>
+
+<h2>Sekcja komentarzy:</h2>
+<form id="commentForm" action="/comments/add" method="POST" style="display: none;">
+  <input type="text" name="name" placeholder="Twoje imię" required>
+  <textarea name="content" placeholder="Twój komentarz" required></textarea>
+  <input type="hidden" name="postId" value="<%= data._id %>">
+  <button type="submit">Dodaj komentarz</button>
+  <button id="cancel" type="submit">Anuluj</button>
+</form>
+<button id="showFormButton">Dodaj komentarz</button>
+
+
+
+
+<!-- 
+mam taki zapis w bazie danych mongodb:
+{ "_id": ObjectId("567"),
+"title": "title",
+"content": "content",
+"comments": [{
+"_id": ObjectId("89"),
+"username": "user",
+"comment": "comment",
+"replies": [{
+"_id": ObjectId("99"),
+"name": "name",
+"reply": "reply"
+}]}]}
+
+zbuduj dla mnie routing, model i formularz do umieszczania tych danych w bazie, a także pokaż jak wyświetlać komentarze i odpowiedzi
+ -->
