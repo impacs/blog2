@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const Post = require('../models/Post');
-const Comment = require('../models/Comment');
 
 
 /**
@@ -40,6 +39,60 @@ router.get('', async (req, res) => {
     }
 });
 
+// Dodawanie nowego posta
+router.post('/post', async (req, res) => {
+    try {
+      const newPost = new Post(req.body);
+      await newPost.save();
+      res.status(201).send(newPost);
+    } catch (error) {
+      res.status(400).send(error);
+    }
+  });
+
+// Dodawanie komentarza do posta
+router.post('/post/:postId/comments', async (req, res) => {
+  const { postId } = req.params;
+  const { username, comment } = req.body;
+  try {
+    const post = await Post.findById(postId);
+    post.comments.push({ username, comment });
+    await post.save();
+    res.status(201).send(post);
+  } catch (error) {
+    res.status(400).send(error);
+  }
+});
+
+  // Dodawanie odpowiedzi do komentarza
+router.post('/post/:postId/comments/:commentId/replies', async (req, res) => {
+  const { postId, commentId } = req.params;
+  const { name, reply } = req.body;
+  try {
+    const post = await Post.findById(postId);
+    const comment = post.comments.id(commentId);
+    comment.replies.push({ name, reply });
+    await post.save();
+    res.status(201).send(post);
+  } catch (error) {
+    res.status(400).send(error);
+  }
+});
+
+  // Wyświetlanie postów z komentarzami i odpowiedziami
+router.get('/post/:postId', async (req, res) => {
+    try {
+      const locals = {
+        title: "post"
+      }
+        let slug = req.params.postId;
+
+      const data = await Post.findById({ _id: slug });
+      res.render('post', { locals, data, currentRoute: `/post/${slug}` });
+    } catch (error) {
+        console.log(error);
+    }
+  });
 
 // router.get('', async (req, res) => {
 //     const locals = {
@@ -57,52 +110,8 @@ router.get('', async (req, res) => {
 
 
 /**
-    * GET 
-    * Post: id 
-*/
-router.get('/post/:id', async (req, res) => {
-    try {
-        let slug = req.params.id;
-
-        const data = await Post.findById({ _id: slug });
-        const comments = await Comment.find({ postId: slug });
-
-        const locals = {
-            title: data.title,
-            description: "simple"
-        }
-
-        res.render('post', { locals, data, comments, currentRoute: `/post/${slug}` });
-    } catch (error) {
-        console.log(error);
-    }
-});
-
-/**
-    * POST 
-    * Post comment
-*/
-router.post('/comments/add', async (req, res) => {
-    try {
-        console.log(req.body);
-      const { postId, name, comment, parentCommentId } = req.body;
-      const isReply = parentCommentId ? true : false; // Sprawdź, czy nowy komentarz jest odpowiedzią
-      const newComment = await Comment.create({ postId, name, comment: comment, parentCommentId, isReply });
-      
-      if (parentCommentId) {
-        await Comment.findByIdAndUpdate(parentCommentId, { $push: { replies: newComment._id } });
-      }
-
-      res.redirect(`/post/${postId}`);
-    } catch (error) {
-      console.error('Error adding comment:', error);
-      res.status(500).send('Internal Server Error');
-    }
-  });
-
-/**
     * POST
-    * Post - seatchTerm
+    * Post - searchTerm
 */
 router.post('/search', async (req, res) => {
     try {

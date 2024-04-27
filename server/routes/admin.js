@@ -135,7 +135,7 @@ router.post('/add-post', authMiddleware, async (req, res) => {
         try {
             const newPost = new Post({
                 title: req.body.title,
-                body: req.body.body
+                content: req.body.content
             });
             await Post.create(newPost);
             res.redirect('/dashboard');

@@ -1,6 +1,6 @@
 <h1><%= data.title %></h1>
 <article class="article">
-    <%- data.body %>
+    <%= data.content %>
     <!-- Modal -->
 <div id="myModal" class="modal">
   <span class="close">&times;</span>
@@ -9,16 +9,39 @@
 </div>
 </article>
 
-<h2>Sekcja komentarzy:</h2>
-<form id="commentForm" action="/comments/add" method="POST" style="display: none;">
-  <input type="text" name="name" placeholder="Twoje imię" required>
-  <textarea name="content" placeholder="Twój komentarz" required></textarea>
-  <input type="hidden" name="postId" value="<%= data._id %>">
-  <button type="submit">Dodaj komentarz</button>
-  <button id="cancel" type="submit">Anuluj</button>
+<h2>Comments:</h2>
+<!-- Formularz dodawania komentarza -->
+<form action="/post/<%= data._id %>/comments" method="post">
+  Username: <input type="text" name="username"><br>
+  Comment: <textarea name="comment"></textarea><br>
+  <input type="submit" value="Submit">
 </form>
-<button id="showFormButton">Dodaj komentarz</button>
 
+<ul>
+  <% data.comments.forEach(function(comment) { %>
+    <li>
+      <strong><%= comment.username %>:</strong> <%= comment.comment %>
+      <!-- Formularz dodawania odpowiedzi na komentarz -->
+      <form action="/post/<%= data._id %>/comments/<%= comment._id %>/replies" method="post">
+        Name: <input type="text" name="name"><br>
+        Reply: <textarea name="reply"></textarea><br>
+        <input type="submit" value="Submit">
+      </form>
+
+  <!-- Lista odpowiedzi -->
+  <% if (comment.replies.length > 0) { %>
+    <ul>
+      <% comment.replies.forEach(function(reply) { %>
+        <li><strong><%= reply.name %>:</strong> <%= reply.reply %></li>
+      <% }); %>
+    </ul>
+  <% } %>
+</li>
+
+<% }); %>
+</ul>
+</body>
+</html>
 
 
 
